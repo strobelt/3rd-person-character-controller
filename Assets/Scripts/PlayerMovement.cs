@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
         mainCamera = Camera.main;
     }
 
-    void Update()
+    void OldUpdate()
     {
         var camForward = mainCamera.transform.forward;
         var camRight = mainCamera.transform.right;
