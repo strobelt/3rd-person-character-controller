@@ -1,5 +1,5 @@
 {
-    "name": "3rdPersonCharacterController",
+    "name": "Player",
     "maps": [
         {
             "name": "Player",
