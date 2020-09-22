@@ -817,7 +817,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.15642649, y: 0, z: 0, w: 0.9876883}
+  m_LocalRotation: {x: 0.1564345, y: 0, z: 0, w: 0.98768836}
   m_LocalPosition: {x: 0, y: 2.5, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -838,6 +838,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Target: {fileID: 1181265805}
   RotationSpeed: 1
+  MaxUpwardAngle: 65
+  MaxDownwardAngle: 320
 --- !u!1 &1181265804
 GameObject:
   m_ObjectHideFlags: 0
