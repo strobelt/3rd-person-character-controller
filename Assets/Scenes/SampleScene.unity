@@ -755,7 +755,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerSpeed: 5
   JumpHeight: 5
-  GravityValue: -9.81
+  GravityValue: -40
+  MaxJumpTime: 0.35
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

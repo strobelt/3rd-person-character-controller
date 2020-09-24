@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public float PlayerSpeed = 5.0f;
     public float JumpHeight = 5.0f;
     public float GravityValue = -9.81f;
+    public float MaxJumpTime = 5;
 
     private const float MovementThreshold = 1.0f;
 
@@ -15,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _playerVelocity;
     private Vector2 _movementVector;
     private bool _isJumping;
+    private float _jumpTimer;
 
     private void Start()
     {
@@ -27,7 +29,14 @@ public class PlayerMovement : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
         => _movementVector = context.ReadValue<Vector2>();
 
-    public void Jump(InputAction.CallbackContext context) => _isJumping = context.started || context.performed;
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if (context.started)
+            _isJumping = true;
+
+        if (context.canceled)
+            _isJumping = false;
+    }
 
     void HandlePlayerMovement()
     {
@@ -35,8 +44,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (_controller.isGrounded)
         {
-            Jump();
+            if (_isJumping) ResetJumpTimer();
             StopFalling();
+        }
+
+        if (_isJumping)
+        {
+            if (_jumpTimer > 0)
+                Jump();
+            else
+                _isJumping = false;
         }
 
         Fall();
@@ -62,10 +79,12 @@ public class PlayerMovement : MonoBehaviour
         _playerVelocity = new Vector3(horizontalVelocity.x, _playerVelocity.y, horizontalVelocity.z);
     }
 
+    private void ResetJumpTimer() => _jumpTimer = MaxJumpTime;
+
     private void Jump()
     {
-        if (_isJumping)
-            _playerVelocity.y += Mathf.Log(JumpHeight * -PlayerSpeed * GravityValue);
+        _playerVelocity.y = Mathf.Log(JumpHeight * -PlayerSpeed * GravityValue);
+        _jumpTimer -= Time.deltaTime;
     }
 
     private void StopFalling()
