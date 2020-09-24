@@ -6,10 +6,8 @@ public class CameraController : MonoBehaviour
     public Transform Target;
     public float RotationSpeed = 1;
 
-    [Range(0, 360)]
-    public float MaxUpwardAngle = 65;
-    [Range(0, 360)]
-    public float MaxDownwardAngle = 320;
+    [Range(0, 360)] public float MaxUpwardAngle = 65;
+    [Range(0, 360)] public float MaxDownwardAngle = 320;
 
     private float _offsetDistance;
     private Vector2 _movementVector = Vector2.zero;
@@ -52,7 +50,8 @@ public class CameraController : MonoBehaviour
 
     private void RotateAroundTargetVertical(float vInput)
     {
-        transform.RotateAround(Target.position, Vector3.left, vInput * RotationSpeed);
+        var rotationAxis = Target.position.z > transform.position.z ? Vector3.left : Vector3.right;
+        transform.RotateAround(Target.position, rotationAxis, vInput * RotationSpeed);
     }
 
     private void LookAtTarget()
