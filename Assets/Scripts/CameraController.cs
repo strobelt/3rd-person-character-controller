@@ -11,8 +11,17 @@ public class CameraController : MonoBehaviour
 
     private float _offsetDistance;
     private Vector2 _movementVector = Vector2.zero;
+    private float _initialAngle;
+    private float _normalizedMaxDownwardAngle;
+    private float _normalizedInitial;
 
-    void Start() => _offsetDistance = (Target.position - transform.position).magnitude;
+    void Start()
+    {
+        _offsetDistance = (Target.position - transform.position).magnitude;
+        _initialAngle = transform.eulerAngles.x;
+        _normalizedMaxDownwardAngle = NormalizeAngle(MaxDownwardAngle);
+        _normalizedInitial = NormalizeAngle(_initialAngle) - _normalizedMaxDownwardAngle;
+    }
 
     void Update() => MoveCamera();
 
@@ -38,8 +47,8 @@ public class CameraController : MonoBehaviour
 
     private bool HorizontalAngleIsOutOfBounds()
     {
-        var x = transform.eulerAngles.x;
-        return MaxUpwardAngle < x && x < MaxDownwardAngle;
+        var horizontalAngle = transform.eulerAngles.x;
+        return MaxUpwardAngle < horizontalAngle && horizontalAngle < MaxDownwardAngle;
     }
 
     private void RotateAroundTarget(float hInput, float vInput)
@@ -50,8 +59,7 @@ public class CameraController : MonoBehaviour
 
     private void RotateAroundTargetVertical(float vInput)
     {
-        var rotationAxis = Target.position.z > transform.position.z ? Vector3.left : Vector3.right;
-        transform.RotateAround(Target.position, rotationAxis, vInput * RotationSpeed);
+        transform.RotateAround(Target.position, -transform.right, vInput * RotationSpeed);
     }
 
     private void LookAtTarget()
@@ -65,7 +73,17 @@ public class CameraController : MonoBehaviour
     private void DistanceFromTarget()
     {
         var targetDirection = (transform.position - Target.position).normalized;
-        var distance = targetDirection * _offsetDistance;
+        var angleOffset = GetAngleOffset();
+        var distance = targetDirection * (angleOffset + _offsetDistance);
         transform.position = Target.position + distance;
     }
+
+    private float GetAngleOffset()
+    {
+        var normalizedCurrent = NormalizeAngle(transform.eulerAngles.x) - _normalizedMaxDownwardAngle;
+        return normalizedCurrent / _normalizedInitial;
+    }
+
+    private float NormalizeAngle(float angle)
+        => angle > 180 ? angle - 360 : angle;
 }
