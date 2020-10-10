@@ -65,13 +65,17 @@ public class CameraController : MonoBehaviour
 
     private void RotateAroundTarget(float hInput, float vInput)
     {
-        transform.RotateAround(Target.position, Vector3.up, hInput * RotationSpeed);
+        Target.Rotate(Vector3.up, hInput * RotationSpeed);
         RotateAroundTargetVertical(vInput);
     }
 
     private void RotateAroundTargetVertical(float vInput)
     {
-        transform.RotateAround(Target.position, -transform.right, vInput * RotationSpeed);
+        var rot = Target.rotation;
+        var angleDelta = vInput * RotationSpeed;
+        var hAngle = rot.eulerAngles.x + angleDelta;
+        Target.rotation = Quaternion.Euler(hAngle, rot.eulerAngles.y, rot.eulerAngles.z);
+        //transform.RotateAround(Target.position, -transform.right, vInput * RotationSpeed);
     }
 
     private void LookAtTarget()
