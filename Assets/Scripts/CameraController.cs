@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using Quaternion = UnityEngine.Quaternion;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 public class CameraController : MonoBehaviour
 {
@@ -14,6 +17,7 @@ public class CameraController : MonoBehaviour
     private float _offsetDistance;
     private Vector2 _movementVector = Vector2.zero;
     private float _initialAngle;
+    private float _normalizedMaxUpwardAngle;
     private float _normalizedMaxDownwardAngle;
     private float _normalizedInitial;
 
@@ -22,6 +26,7 @@ public class CameraController : MonoBehaviour
         _targetOffsetToPlayer = Target.position - Player.position;
         _offsetDistance = (Target.position - transform.position).magnitude;
         _initialAngle = transform.eulerAngles.x;
+        _normalizedMaxUpwardAngle = NormalizeAngle(MaxUpwardAngle);
         _normalizedMaxDownwardAngle = NormalizeAngle(MaxDownwardAngle);
         _normalizedInitial = NormalizeAngle(_initialAngle) - _normalizedMaxDownwardAngle;
     }
@@ -46,14 +51,6 @@ public class CameraController : MonoBehaviour
         var vInput = _movementVector.y;
 
         RotateAroundTarget(hInput, vInput);
-        LookAtTarget();
-
-        if (HorizontalAngleIsOutOfBounds())
-        {
-            RotateAroundTargetVertical(-vInput);
-            LookAtTarget();
-        }
-
         DistanceFromTarget();
     }
 
@@ -65,25 +62,14 @@ public class CameraController : MonoBehaviour
 
     private void RotateAroundTarget(float hInput, float vInput)
     {
-        Target.Rotate(Vector3.up, hInput * RotationSpeed);
-        RotateAroundTargetVertical(vInput);
-    }
+        var rot = Target.rotation.eulerAngles;
+        rot += Vector3.up * hInput;
 
-    private void RotateAroundTargetVertical(float vInput)
-    {
-        var rot = Target.rotation;
-        var angleDelta = vInput * RotationSpeed;
-        var hAngle = rot.eulerAngles.x + angleDelta;
-        Target.rotation = Quaternion.Euler(hAngle, rot.eulerAngles.y, rot.eulerAngles.z);
-        //transform.RotateAround(Target.position, -transform.right, vInput * RotationSpeed);
-    }
-
-    private void LookAtTarget()
-    {
-        var angles = transform.localEulerAngles;
-        angles.z = 0;
-        transform.localEulerAngles = angles;
-        transform.LookAt(Target);
+        var futureAngle = rot.x + vInput;
+        if (futureAngle <= MaxUpwardAngle || futureAngle >= MaxDownwardAngle)
+            rot += Vector3.right * vInput;
+        rot.z = 0;
+        Target.rotation = Quaternion.Euler(rot);
     }
 
     private void DistanceFromTarget()
