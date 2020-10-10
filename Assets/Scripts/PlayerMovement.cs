@@ -35,7 +35,10 @@ public class PlayerMovement : MonoBehaviour
             _isJumping = true;
 
         if (context.canceled)
+        {
+            _jumpTimer = 0;
             _isJumping = false;
+        }
     }
 
     void HandlePlayerMovement()
