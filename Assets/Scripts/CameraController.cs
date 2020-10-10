@@ -3,12 +3,14 @@ using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour
 {
+    public Transform Player;
     public Transform Target;
     public float RotationSpeed = 1;
 
     [Range(0, 360)] public float MaxUpwardAngle = 65;
     [Range(0, 360)] public float MaxDownwardAngle = 320;
 
+    private Vector3 _targetOffsetToPlayer;
     private float _offsetDistance;
     private Vector2 _movementVector = Vector2.zero;
     private float _initialAngle;
@@ -17,16 +19,26 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
+        _targetOffsetToPlayer = Target.position - Player.position;
         _offsetDistance = (Target.position - transform.position).magnitude;
         _initialAngle = transform.eulerAngles.x;
         _normalizedMaxDownwardAngle = NormalizeAngle(MaxDownwardAngle);
         _normalizedInitial = NormalizeAngle(_initialAngle) - _normalizedMaxDownwardAngle;
     }
 
-    void Update() => MoveCamera();
+    void Update()
+    {
+        MoveFocus();
+        MoveCamera();
+    }
 
     public void Look(InputAction.CallbackContext context)
         => _movementVector = context.ReadValue<Vector2>();
+
+    void MoveFocus()
+    {
+        Target.position = Player.position + _targetOffsetToPlayer;
+    }
 
     void MoveCamera()
     {
