@@ -77,7 +77,7 @@ public class PlayerMovement : MonoBehaviour
         var horizontalInput = camRight * hInput + camForward * vInput;
         var horizontalVelocity = horizontalInput * PlayerSpeed;
 
-        if (horizontalInput != Vector3.zero) transform.forward = horizontalInput;
+        if (horizontalInput.magnitude > 0) transform.forward = horizontalInput;
 
         _playerVelocity = new Vector3(horizontalVelocity.x, _playerVelocity.y, horizontalVelocity.z);
     }

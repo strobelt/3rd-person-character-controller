@@ -8,7 +8,8 @@ public class CameraController : MonoBehaviour
 {
     public Transform Player;
     public Transform Target;
-    public float RotationSpeed = 1;
+    public float RotationSpeed = 100;
+    public float FollowSpeed = 8;
 
     [Range(0, 360)] public float MaxUpwardAngle = 65;
     [Range(0, 360)] public float MaxDownwardAngle = 320;
@@ -17,7 +18,6 @@ public class CameraController : MonoBehaviour
     private float _offsetDistance;
     private Vector2 _movementVector = Vector2.zero;
     private float _initialAngle;
-    private float _normalizedMaxUpwardAngle;
     private float _normalizedMaxDownwardAngle;
     private float _normalizedInitial;
 
@@ -26,7 +26,6 @@ public class CameraController : MonoBehaviour
         _targetOffsetToPlayer = Target.position - Player.position;
         _offsetDistance = (Target.position - transform.position).magnitude;
         _initialAngle = transform.eulerAngles.x;
-        _normalizedMaxUpwardAngle = NormalizeAngle(MaxUpwardAngle);
         _normalizedMaxDownwardAngle = NormalizeAngle(MaxDownwardAngle);
         _normalizedInitial = NormalizeAngle(_initialAngle) - _normalizedMaxDownwardAngle;
     }
@@ -42,7 +41,8 @@ public class CameraController : MonoBehaviour
 
     void MoveFocus()
     {
-        Target.position = Player.position + _targetOffsetToPlayer;
+        var focusFuturePosition = Player.position + _targetOffsetToPlayer - Target.position;
+        Target.transform.Translate(focusFuturePosition * FollowSpeed * Time.deltaTime, Space.World);
     }
 
     void MoveCamera()
@@ -54,22 +54,19 @@ public class CameraController : MonoBehaviour
         DistanceFromTarget();
     }
 
-    private bool HorizontalAngleIsOutOfBounds()
-    {
-        var horizontalAngle = transform.eulerAngles.x;
-        return MaxUpwardAngle < horizontalAngle && horizontalAngle < MaxDownwardAngle;
-    }
-
     private void RotateAroundTarget(float hInput, float vInput)
     {
-        var rot = Target.rotation.eulerAngles;
-        rot += Vector3.up * hInput;
+        var rotationDelta = RotationSpeed * Time.deltaTime;
 
-        var futureAngle = rot.x + vInput;
-        if (futureAngle <= MaxUpwardAngle || futureAngle >= MaxDownwardAngle)
-            rot += Vector3.right * vInput;
-        rot.z = 0;
-        Target.rotation = Quaternion.Euler(rot);
+        var futureTargetRotation = Target.rotation.eulerAngles;
+        futureTargetRotation += Vector3.up * hInput * rotationDelta;
+
+        var futureAngle = futureTargetRotation.x + vInput;
+        if (MaxUpwardAngle >= futureAngle || futureAngle >= MaxDownwardAngle)
+            futureTargetRotation += Vector3.right * vInput * rotationDelta;
+
+        futureTargetRotation.z = 0;
+        Target.rotation = Quaternion.Euler(futureTargetRotation);
     }
 
     private void DistanceFromTarget()
