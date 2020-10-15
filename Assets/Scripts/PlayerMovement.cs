@@ -43,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandlePlayerMovement()
     {
-        //CalculateHMovementRelativeToCam(_movementVector.x, _movementVector.y);
+        CalculateHMovementRelativeToCam(_movementVector.x, _movementVector.y);
 
         if (_controller.isGrounded)
         {
@@ -76,8 +76,6 @@ public class PlayerMovement : MonoBehaviour
 
         var horizontalInput = camRight * hInput + camForward * vInput;
         var horizontalVelocity = horizontalInput * PlayerSpeed;
-
-        if (horizontalInput.magnitude > 0) transform.forward = horizontalInput;
 
         _playerVelocity = new Vector3(horizontalVelocity.x, _playerVelocity.y, horizontalVelocity.z);
     }
