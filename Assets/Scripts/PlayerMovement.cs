@@ -43,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandlePlayerMovement()
     {
-        CalculateHMovementRelativeToCam(_movementVector.x, _movementVector.y);
+        //CalculateHMovementRelativeToCam(_movementVector.x, _movementVector.y);
 
         if (_controller.isGrounded)
         {
