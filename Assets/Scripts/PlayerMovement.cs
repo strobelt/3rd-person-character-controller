@@ -8,6 +8,9 @@ public class PlayerMovement : MonoBehaviour
     public float JumpHeight = 5.0f;
     public float GravityValue = -9.81f;
     public float MaxJumpTime = 5;
+    public float CameraRotationSpeed = 100;
+    [Range(0, 360)] public float CameraMaxUpwardAngle = 65;
+    [Range(0, 360)] public float CameraMaxDownwardAngle = 320;
 
     private const float MovementThreshold = 1.0f;
 
@@ -39,6 +42,25 @@ public class PlayerMovement : MonoBehaviour
             _jumpTimer = 0;
             _isJumping = false;
         }
+    }
+
+    public void Look(InputAction.CallbackContext context)
+    {
+        var lookVector = context.ReadValue<Vector2>();
+        var hInput = lookVector.x;
+        var vInput = lookVector.y;
+
+        var rotationDelta = CameraRotationSpeed * Time.deltaTime;
+
+        var futureTargetRotation = transform.rotation.eulerAngles;
+        futureTargetRotation += Vector3.up * hInput * rotationDelta;
+
+        var futureAngle = futureTargetRotation.x + vInput;
+        if (CameraMaxUpwardAngle >= futureAngle || futureAngle >= CameraMaxDownwardAngle)
+            futureTargetRotation += Vector3.right * vInput * rotationDelta;
+
+        futureTargetRotation.z = 0;
+        transform.rotation = Quaternion.Euler(futureTargetRotation);
     }
 
     void HandlePlayerMovement()
