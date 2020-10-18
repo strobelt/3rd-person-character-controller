@@ -12,17 +12,12 @@ public class PlayerMovement : MonoBehaviour
     private const float MovementThreshold = 1.0f;
 
     private CharacterController _controller;
-    private Camera _mainCamera;
     private Vector3 _playerVelocity;
     private Vector2 _movementVector;
     private bool _isJumping;
     private float _jumpTimer;
 
-    private void Start()
-    {
-        _controller = GetComponent<CharacterController>();
-        _mainCamera = Camera.main;
-    }
+    private void Start() => _controller = GetComponent<CharacterController>();
 
     void Update() => HandlePlayerMovement();
 
@@ -67,14 +62,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void MoveHorizontally(float hInput, float vInput)
     {
-        var camForward = _mainCamera.transform.forward;
-        var camRight = _mainCamera.transform.right;
-        camForward.y = 0;
-        camRight.y = 0;
-        camForward = camForward.normalized;
-        camRight = camRight.normalized;
-
-        var horizontalInput = camRight * hInput + camForward * vInput;
+        var horizontalInput = transform.right * hInput + transform.forward * vInput;
         var horizontalVelocity = horizontalInput * PlayerSpeed;
 
         _playerVelocity = new Vector3(horizontalVelocity.x, _playerVelocity.y, horizontalVelocity.z);
