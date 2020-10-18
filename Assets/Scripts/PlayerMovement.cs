@@ -12,17 +12,12 @@ public class PlayerMovement : MonoBehaviour
     private const float MovementThreshold = 1.0f;
 
     private CharacterController _controller;
-    private Camera _mainCamera;
     private Vector3 _playerVelocity;
     private Vector2 _movementVector;
     private bool _isJumping;
     private float _jumpTimer;
 
-    private void Start()
-    {
-        _controller = GetComponent<CharacterController>();
-        _mainCamera = Camera.main;
-    }
+    private void Start() => _controller = GetComponent<CharacterController>();
 
     void Update() => HandlePlayerMovement();
 
@@ -43,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandlePlayerMovement()
     {
-        CalculateHMovementRelativeToCam(_movementVector.x, _movementVector.y);
+        MoveHorizontally(_movementVector.x, _movementVector.y);
 
         if (_controller.isGrounded)
         {
@@ -65,19 +60,10 @@ public class PlayerMovement : MonoBehaviour
             MovePlayer();
     }
 
-    private void CalculateHMovementRelativeToCam(float hInput, float vInput)
+    private void MoveHorizontally(float hInput, float vInput)
     {
-        var camForward = _mainCamera.transform.forward;
-        var camRight = _mainCamera.transform.right;
-        camForward.y = 0;
-        camRight.y = 0;
-        camForward = camForward.normalized;
-        camRight = camRight.normalized;
-
-        var horizontalInput = camRight * hInput + camForward * vInput;
+        var horizontalInput = transform.right * hInput + transform.forward * vInput;
         var horizontalVelocity = horizontalInput * PlayerSpeed;
-
-        if (horizontalInput.magnitude > 0) transform.forward = horizontalInput;
 
         _playerVelocity = new Vector3(horizontalVelocity.x, _playerVelocity.y, horizontalVelocity.z);
     }
