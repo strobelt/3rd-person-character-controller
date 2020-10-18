@@ -303,7 +303,6 @@ GameObject:
   - component: {fileID: 445723605}
   - component: {fileID: 445723608}
   - component: {fileID: 445723607}
-  - component: {fileID: 445723606}
   m_Layer: 0
   m_Name: Face
   m_TagString: Untagged
@@ -325,19 +324,6 @@ Transform:
   m_Father: {fileID: 722949223}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &445723606
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 445723604}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &445723607
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -736,6 +722,7 @@ GameObject:
   - component: {fileID: 722949221}
   - component: {fileID: 722949225}
   - component: {fileID: 722949226}
+  - component: {fileID: 722949224}
   - component: {fileID: 722949220}
   m_Layer: 0
   m_Name: Player
@@ -790,8 +777,8 @@ MonoBehaviour:
       AnnePro2/stick]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 722949226}
-        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
+      - m_Target: {fileID: 722949224}
+        m_TargetAssemblyTypeName: CameraController, Assembly-CSharp
         m_MethodName: Look
         m_Mode: 0
         m_Arguments:
@@ -945,6 +932,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &722949224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 722949219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ab29b139b8e4f24ba918f13734b2105, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CameraRotationSpeed: 100
+  CameraMaxUpwardAngle: 65
+  CameraMaxDownwardAngle: 320
+  CameraTarget: {fileID: 688649854}
 --- !u!143 &722949225
 CharacterController:
   m_ObjectHideFlags: 0
@@ -979,10 +982,6 @@ MonoBehaviour:
   JumpHeight: 5
   GravityValue: -40
   MaxJumpTime: 0.35
-  CameraRotationSpeed: 100
-  CameraMaxUpwardAngle: 65
-  CameraMaxDownwardAngle: 320
-  CameraTarget: {fileID: 688649854}
 --- !u!1 &1134293465
 GameObject:
   m_ObjectHideFlags: 0

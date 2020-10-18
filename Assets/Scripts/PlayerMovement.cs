@@ -8,10 +8,6 @@ public class PlayerMovement : MonoBehaviour
     public float JumpHeight = 5.0f;
     public float GravityValue = -9.81f;
     public float MaxJumpTime = 5;
-    public float CameraRotationSpeed = 100;
-    [Range(0, 360)] public float CameraMaxUpwardAngle = 65;
-    [Range(0, 360)] public float CameraMaxDownwardAngle = 320;
-    public GameObject CameraTarget;
 
     private const float MovementThreshold = 1.0f;
 
@@ -45,28 +41,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void Look(InputAction.CallbackContext context)
-    {
-        var lookVector = context.ReadValue<Vector2>();
-        var hInput = lookVector.x;
-        var vInput = lookVector.y;
-
-        var rotationDelta = CameraRotationSpeed * Time.deltaTime;
-
-        var playerRotation = transform.rotation.eulerAngles;
-        playerRotation += Vector3.up * hInput * rotationDelta;
-        transform.rotation = Quaternion.Euler(playerRotation);
-
-        var camRotation = CameraTarget.transform.rotation.eulerAngles;
-        var futureAngle = camRotation.x + vInput * rotationDelta;
-        if (CameraMaxUpwardAngle >= futureAngle || futureAngle >= CameraMaxDownwardAngle)
-            camRotation += Vector3.right * vInput * rotationDelta;
-        CameraTarget.transform.rotation = Quaternion.Euler(camRotation);
-    }
-
     void HandlePlayerMovement()
     {
-        CalculateHMovementRelativeToCam(_movementVector.x, _movementVector.y);
+        MoveHorizontally(_movementVector.x, _movementVector.y);
 
         if (_controller.isGrounded)
         {
@@ -88,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
             MovePlayer();
     }
 
-    private void CalculateHMovementRelativeToCam(float hInput, float vInput)
+    private void MoveHorizontally(float hInput, float vInput)
     {
         var camForward = _mainCamera.transform.forward;
         var camRight = _mainCamera.transform.right;
