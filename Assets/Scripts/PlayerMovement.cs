@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float CameraRotationSpeed = 100;
     [Range(0, 360)] public float CameraMaxUpwardAngle = 65;
     [Range(0, 360)] public float CameraMaxDownwardAngle = 320;
+    public GameObject CameraTarget;
 
     private const float MovementThreshold = 1.0f;
 
@@ -52,15 +53,15 @@ public class PlayerMovement : MonoBehaviour
 
         var rotationDelta = CameraRotationSpeed * Time.deltaTime;
 
-        var futureTargetRotation = transform.rotation.eulerAngles;
-        futureTargetRotation += Vector3.up * hInput * rotationDelta;
+        var playerRotation = transform.rotation.eulerAngles;
+        playerRotation += Vector3.up * hInput * rotationDelta;
+        transform.rotation = Quaternion.Euler(playerRotation);
 
-        var futureAngle = futureTargetRotation.x + vInput;
+        var camRotation = CameraTarget.transform.rotation.eulerAngles;
+        var futureAngle = camRotation.x + vInput * rotationDelta;
         if (CameraMaxUpwardAngle >= futureAngle || futureAngle >= CameraMaxDownwardAngle)
-            futureTargetRotation += Vector3.right * vInput * rotationDelta;
-
-        futureTargetRotation.z = 0;
-        transform.rotation = Quaternion.Euler(futureTargetRotation);
+            camRotation += Vector3.right * vInput * rotationDelta;
+        CameraTarget.transform.rotation = Quaternion.Euler(camRotation);
     }
 
     void HandlePlayerMovement()
