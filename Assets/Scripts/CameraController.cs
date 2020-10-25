@@ -7,6 +7,7 @@ public class CameraController : MonoBehaviour
     [Range(0, 360)] public float CameraMaxUpwardAngle = 65;
     [Range(0, 360)] public float CameraMaxDownwardAngle = 320;
     public GameObject CameraTarget;
+
     private Vector2 _lookVector;
 
     public void Look(InputAction.CallbackContext context) => _lookVector = context.ReadValue<Vector2>();
@@ -27,5 +28,7 @@ public class CameraController : MonoBehaviour
         if (CameraMaxUpwardAngle >= futureAngle || futureAngle >= CameraMaxDownwardAngle)
             camRotation += Vector3.right * vInput * rotationDelta;
         CameraTarget.transform.rotation = Quaternion.Euler(camRotation);
+
+
     }
 }
