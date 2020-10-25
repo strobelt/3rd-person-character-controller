@@ -723,6 +723,7 @@ GameObject:
   - component: {fileID: 722949225}
   - component: {fileID: 722949226}
   - component: {fileID: 722949224}
+  - component: {fileID: 722949227}
   - component: {fileID: 722949220}
   m_Layer: 0
   m_Name: Player
@@ -792,7 +793,19 @@ MonoBehaviour:
     m_ActionId: abd8bf39-489a-4318-b0d7-b8c8ce77183d
     m_ActionName: Player/Look[/Mouse/delta]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 722949227}
+        m_TargetAssemblyTypeName: ShootingController, Assembly-CSharp
+        m_MethodName: Shoot
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 889e6a9f-98c8-4cf7-b77e-8ca7a292a385
     m_ActionName: 'Player/Fire[/Mouse/leftButton,/OBINS OBINS
 
@@ -982,6 +995,20 @@ MonoBehaviour:
   JumpHeight: 5
   GravityValue: -40
   MaxJumpTime: 0.35
+--- !u!114 &722949227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 722949219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51a7759f027a2264ba38ed95874fe3a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Bullet: {fileID: 6334103727136507571, guid: f579009e031a45942ade40fbaae1d318, type: 3}
+  aim: {fileID: 1134293468}
 --- !u!1 &1134293465
 GameObject:
   m_ObjectHideFlags: 0
@@ -1102,7 +1129,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.25}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1406364082
