@@ -7,12 +7,14 @@ public class CameraController : MonoBehaviour
     [Range(0, 360)] public float CameraMaxUpwardAngle = 65;
     [Range(0, 360)] public float CameraMaxDownwardAngle = 320;
     public GameObject CameraTarget;
+    private Vector2 _lookVector;
 
-    public void Look(InputAction.CallbackContext context)
+    public void Look(InputAction.CallbackContext context) => _lookVector = context.ReadValue<Vector2>();
+
+    void Update()
     {
-        var lookVector = context.ReadValue<Vector2>();
-        var hInput = lookVector.x;
-        var vInput = lookVector.y;
+        var hInput = _lookVector.x;
+        var vInput = _lookVector.y;
 
         var rotationDelta = CameraRotationSpeed * Time.deltaTime;
 

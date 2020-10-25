@@ -11,15 +11,12 @@ public class ShootingController : MonoBehaviour
     private int layerMask;
     private Camera mainCamera;
 
-    private Color[] colors =
+    private readonly Color[] _colors =
     {
         Color.red, Color.blue, Color.yellow, Color.black, Color.green
     };
 
-    public void Shoot(InputAction.CallbackContext context)
-    {
-        isShooting = !context.canceled;
-    }
+    public void Shoot(InputAction.CallbackContext context) => isShooting = !context.canceled;
 
     void Start()
     {
@@ -56,7 +53,7 @@ public class ShootingController : MonoBehaviour
     void HandleHit(RaycastHit hit)
     {
         var random = new System.Random();
-        var randomColor = colors[random.Next(0, colors.Length - 1)];
+        var randomColor = _colors[random.Next(0, _colors.Length - 1)];
         hit.transform.gameObject.GetComponent<Renderer>().material.color = randomColor;
     }
 }
