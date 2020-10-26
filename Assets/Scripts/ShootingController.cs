@@ -1,16 +1,13 @@
-﻿using Cinemachine;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ShootingController : MonoBehaviour
 {
     public GameObject Bullet;
-    public Cinemachine3rdPersonAim Aim;
     public RectTransform TargetingReticle;
 
     private bool _isShooting;
     private int _hittableLayerMask;
-    private Camera _mainCamera;
     private int _displayWidth, _displayHeight;
 
     private readonly Color[] _colors =
@@ -25,7 +22,6 @@ public class ShootingController : MonoBehaviour
         _hittableLayerMask = 1 << LayerMask.NameToLayer("Player");
         _hittableLayerMask = ~_hittableLayerMask;
 
-        _mainCamera = Camera.main;
         var canvas = TargetingReticle.GetComponentInParent<Canvas>();
         _displayWidth = canvas.worldCamera.pixelWidth;
         _displayHeight = canvas.worldCamera.pixelHeight;

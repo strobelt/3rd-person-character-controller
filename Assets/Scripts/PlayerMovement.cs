@@ -57,7 +57,12 @@ public class PlayerMovement : MonoBehaviour
         Fall();
 
         if (ShouldMove())
+        {
+            var cameraForward = Camera.main.transform.forward;
+            cameraForward.y = 0;
+            transform.forward = cameraForward;
             MovePlayer();
+        }
     }
 
     private void MoveHorizontally(float hInput, float vInput)
