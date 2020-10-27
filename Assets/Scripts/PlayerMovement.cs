@@ -58,16 +58,21 @@ public class PlayerMovement : MonoBehaviour
 
         if (ShouldMove())
         {
-            var cameraForward = Camera.main.transform.forward;
-            cameraForward.y = 0;
-            transform.forward = cameraForward;
             MovePlayer();
         }
     }
 
     private void MoveHorizontally(float hInput, float vInput)
     {
-        var horizontalInput = transform.right * hInput + transform.forward * vInput;
+        var camForward = Camera.main.transform.forward;
+        var camRight = Camera.main.transform.right;
+
+        camForward.y = 0;
+        camRight.y = 0;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        var horizontalInput = camRight * hInput + camForward * vInput;
         var horizontalVelocity = horizontalInput * PlayerSpeed;
 
         _playerVelocity = new Vector3(horizontalVelocity.x, _playerVelocity.y, horizontalVelocity.z);
