@@ -23,6 +23,9 @@ public class PlayerMovement : MonoBehaviour
     private bool _isJumping;
     private float _jumpTimer;
 
+    private float RotationDelta => RotationSpeed * Time.deltaTime;
+    private bool ShouldMove => _playerVelocity.magnitude > MovementThreshold;
+
     private void Start() => _controller = GetComponent<CharacterController>();
 
     void Update() => HandlePlayerMovement();
@@ -63,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandlePlayerMovement()
     {
-        MoveHorizontally(_movementVector.x, _movementVector.y);
+        _playerVelocity = CalculateHorizontalVelocity(_movementVector.x, _movementVector.y);
 
         if (_controller.isGrounded)
         {
@@ -81,47 +84,22 @@ public class PlayerMovement : MonoBehaviour
 
         Fall();
 
-        if (ShouldMove())
+        if (ShouldMove)
         {
             RotatePlayer();
-            MovePlayer();
+            _controller.Move(_playerVelocity * Time.deltaTime);
         }
         else
-        {
-            var rotationDelta = RotationSpeed * Time.deltaTime;
-            var camRotation = CameraTarget.transform.rotation.eulerAngles;
-
-            camRotation += Vector3.up * _lookVector.x * rotationDelta;
-
-            var futureAngle = camRotation.x + _lookVector.y * rotationDelta;
-            if (CameraMaxUpwardAngle >= futureAngle || futureAngle >= CameraMaxDownwardAngle)
-                camRotation += Vector3.right * _lookVector.y * rotationDelta;
-
-            CameraTarget.transform.rotation = Quaternion.Euler(camRotation);
-        }
+            RotateCamera(_lookVector.x, _lookVector.y);
     }
 
-    private void RotatePlayer()
-    {
-        var rotationDelta = RotationSpeed * Time.deltaTime;
-
-        var playerRotation = transform.rotation.eulerAngles;
-        playerRotation += Vector3.up * _lookVector.x * rotationDelta;
-        transform.rotation = Quaternion.Euler(playerRotation);
-
-        var camRotation = CameraTarget.transform.rotation.eulerAngles;
-        var futureAngle = camRotation.x + _lookVector.y * rotationDelta;
-        if (CameraMaxUpwardAngle >= futureAngle || futureAngle >= CameraMaxDownwardAngle)
-            camRotation += Vector3.right * _lookVector.y * rotationDelta;
-        CameraTarget.transform.rotation = Quaternion.Euler(camRotation);
-    }
-
-    private void MoveHorizontally(float hInput, float vInput)
+    private Vector3 CalculateHorizontalVelocity(float hInput, float vInput)
     {
         var horizontalInput = transform.right * hInput + transform.forward * vInput;
         var horizontalVelocity = horizontalInput * MovementSpeed;
+        horizontalVelocity.y = _playerVelocity.y;
 
-        _playerVelocity = new Vector3(horizontalVelocity.x, _playerVelocity.y, horizontalVelocity.z);
+        return horizontalVelocity;
     }
 
     private void ResetJumpTimer() => _jumpTimer = MaxJumpTime;
@@ -139,7 +117,25 @@ public class PlayerMovement : MonoBehaviour
 
     private void Fall() => _playerVelocity.y += GravityValue * Time.deltaTime;
 
-    private bool ShouldMove() => _playerVelocity.magnitude > MovementThreshold;
+    private void RotatePlayer()
+    {
+        var playerRotation = transform.rotation.eulerAngles;
+        playerRotation += Vector3.up * _lookVector.x * RotationDelta;
+        transform.rotation = Quaternion.Euler(playerRotation);
 
-    private void MovePlayer() => _controller.Move(_playerVelocity * Time.deltaTime);
+        RotateCamera(0, _lookVector.y);
+    }
+
+    private void RotateCamera(float hInput, float vInput)
+    {
+        var camRotation = CameraTarget.transform.rotation.eulerAngles;
+
+        camRotation += Vector3.up * hInput * RotationDelta;
+
+        var futureAngle = camRotation.x + vInput * RotationDelta;
+        if (CameraMaxUpwardAngle >= futureAngle || futureAngle >= CameraMaxDownwardAngle)
+            camRotation += Vector3.right * vInput * RotationDelta;
+
+        CameraTarget.transform.rotation = Quaternion.Euler(camRotation);
+    }
 }
