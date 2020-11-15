@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController _controller;
     private Vector3 _playerVelocity;
-    private Vector2 _movementVector;
+    [HideInInspector] public Vector2 _movementVector;
     private Vector2 _lookVector;
     private bool _isJumping;
     private float _jumpTimer;
@@ -30,10 +30,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Update() => HandlePlayerMovement();
 
-    public void Move(InputAction.CallbackContext context)
+    public void Move(InputAction.CallbackContext context) => HandleMovementInput(context.ReadValue<Vector2>(), context.started);
+
+    public void HandleMovementInput(Vector2 inputVector, bool startedMoving)
     {
-        _movementVector = context.ReadValue<Vector2>();
-        if (context.started)
+        _movementVector = inputVector;
+        if (startedMoving)
             FaceForward();
     }
 
