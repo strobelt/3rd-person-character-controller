@@ -18,6 +18,7 @@ namespace Tests
 
             var player = Object.Instantiate(Resources.Load<GameObject>("Prefabs/Player"));
             PlayerMovement = player.GetComponent<PlayerMovement>();
+            PlayerMovement.Controller = player.GetComponent<CharacterController>();
         }
     }
 
@@ -136,6 +137,151 @@ namespace Tests
             PlayerMovement.JumpTimer = jumpTimer;
             PlayerMovement.HandleJumpInput(true);
             PlayerMovement.JumpTimer.Should().Be(jumpTimer);
+        }
+    }
+
+    [TestFixture]
+    public class HandlePlayerMovementTests : BasePlayerMovementTests
+    {
+        [Test]
+        public void ShouldCalculateHorizontalVelocity()
+        {
+            PlayerMovement.PlayerVelocity = Vector3.zero;
+            var movementVector = Faker.Random.Vector2();
+            PlayerMovement.MovementVector = movementVector;
+            var expectedVelocity =
+                PlayerMovement.transform.right * movementVector.x +
+                PlayerMovement.transform.forward * movementVector.y;
+            expectedVelocity *= PlayerMovement.MovementSpeed;
+
+            PlayerMovement.HandlePlayerMovement();
+
+            var playerHorizontalVelocity = PlayerMovement.PlayerVelocity;
+            playerHorizontalVelocity.y = 0;
+            playerHorizontalVelocity.Should().BeEquivalentTo(expectedVelocity);
+        }
+
+        [Test]
+        public void ShouldSetIsJumpingToFalseWhenIsJumpingAndJumpTimerIsLessThanOrEqualTo0()
+        {
+            PlayerMovement.IsJumping = true;
+            PlayerMovement.JumpTimer = Faker.Random.Float(-10, 0);
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.IsJumping.Should().BeFalse();
+        }
+
+        [Test]
+        public void ShouldHavePositiveVerticalVelocityIfIsJumpingAndJumpTimerIsGreaterThan0()
+        {
+            PlayerMovement.PlayerVelocity.y = 0;
+            PlayerMovement.IsJumping = true;
+            PlayerMovement.JumpTimer = Faker.Random.Float(1);
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.PlayerVelocity.y.Should().BeGreaterThan(0);
+        }
+
+        [Test]
+        public void ShouldDecreaseJumpTimerIfIsJumpingAndJumpTimerIsGreaterThan0()
+        {
+            PlayerMovement.JumpTimer = Faker.Random.Float(1);
+            PlayerMovement.IsJumping = true;
+            var initialJumpTimer = PlayerMovement.JumpTimer;
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.JumpTimer.Should().BeLessThan(initialJumpTimer);
+        }
+
+        [Test]
+        public void ShouldApplyGravityToVerticalVelocity()
+        {
+            PlayerMovement.PlayerVelocity.y = Faker.Random.Float(10);
+            PlayerMovement.IsJumping = false;
+            var initialVerticalVelocity = PlayerMovement.PlayerVelocity.y;
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.PlayerVelocity.y.Should()
+                .Be(initialVerticalVelocity + PlayerMovement.GravityAcceleration * Time.deltaTime);
+        }
+
+        [Test]
+        public void ShouldRotatePlayerIfMoving()
+        {
+            PlayerMovement.MovementVector = Faker.Random.Vector2(0, 10);
+            var lookVector = Faker.Random.Vector2(0, 10);
+            PlayerMovement.LookVector = lookVector;
+            var initialPlayerRotation = PlayerMovement.transform.rotation.eulerAngles;
+            var expectedRotation =
+                Quaternion.Euler(
+                    initialPlayerRotation +
+                    Vector3.up * lookVector.x * PlayerMovement.RotationDelta
+                );
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.transform.rotation.Should().BeEquivalentTo(expectedRotation);
+        }
+
+        [Test]
+        public void ShouldTiltCameraIfLookingWhileMoving()
+        {
+            PlayerMovement.MovementVector = Faker.Random.Vector3(0, 10);
+            var lookVector = Faker.Random.Vector2(0, 10);
+            PlayerMovement.LookVector = lookVector;
+            var initialCameraRotation = PlayerMovement.CameraTarget.transform.rotation.eulerAngles;
+            var expectedRotation =
+                Quaternion.Euler(
+                    initialCameraRotation +
+                    Vector3.right * lookVector.y * PlayerMovement.RotationDelta
+                );
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.CameraTarget.transform.rotation.eulerAngles.x.Should()
+                .BeApproximately(expectedRotation.eulerAngles.x, 0.0001f);
+        }
+
+        [Test]
+        public void ShouldRotateCameraIfNotMoving()
+        {
+            PlayerMovement.CameraTarget.transform.rotation = Quaternion.identity;
+            PlayerMovement.MovementVector = Vector3.zero;
+            PlayerMovement.GravityAcceleration = 0;
+            PlayerMovement.LookVector = Faker.Random.Vector2(0, 10);
+            var initialCameraRotation = PlayerMovement.CameraTarget.transform.rotation;
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.CameraTarget.transform.rotation
+                .Should()
+                .NotBeEquivalentTo(initialCameraRotation);
+        }
+
+        [Test]
+        public void ShouldRotateCameraByLookVectorIfNotMoving()
+        {
+            PlayerMovement.CameraTarget.transform.rotation = Quaternion.identity;
+            PlayerMovement.MovementVector = Vector3.zero;
+            PlayerMovement.GravityAcceleration = 0;
+            var lookVector = Faker.Random.Vector2(0, 10);
+            PlayerMovement.LookVector = lookVector;
+            var initialCameraRotation = PlayerMovement.CameraTarget.transform.rotation.eulerAngles;
+            var expectedRotation =
+                Quaternion.Euler(
+                    initialCameraRotation +
+                    Vector3.up * lookVector.x * PlayerMovement.RotationDelta +
+                    Vector3.right * lookVector.y * PlayerMovement.RotationDelta
+                );
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.CameraTarget.transform.rotation
+                .Should()
+                .BeEquivalentTo(expectedRotation);
         }
     }
 }

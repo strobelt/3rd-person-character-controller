@@ -7,7 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public float MovementSpeed = 5.0f;
     public float RotationSpeed = 100;
     public float JumpHeight = 5.0f;
-    public float GravityValue = -9.81f;
+    public float GravityAcceleration = -9.81f;
     public float MaxJumpTime = 5;
 
     public GameObject CameraTarget;
@@ -18,16 +18,16 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector] public Vector2 LookVector;
     [HideInInspector] public bool IsJumping;
     [HideInInspector] public float JumpTimer;
+    [HideInInspector] public CharacterController Controller;
+    [HideInInspector] public Vector3 PlayerVelocity;
 
     private const float MovementThreshold = 1.0f;
 
-    private CharacterController _controller;
-    private Vector3 _playerVelocity;
 
-    private float RotationDelta => RotationSpeed * Time.deltaTime;
-    private bool ShouldMove => _playerVelocity.magnitude > MovementThreshold;
+    public float RotationDelta => RotationSpeed * Time.deltaTime;
+    public bool ShouldMove => PlayerVelocity.magnitude > MovementThreshold;
 
-    private void Start() => _controller = GetComponent<CharacterController>();
+    private void Start() => Controller = GetComponent<CharacterController>();
 
     void Update() => HandlePlayerMovement();
 
@@ -68,11 +68,11 @@ public class PlayerMovement : MonoBehaviour
         if (!isJumping) JumpTimer = 0;
     }
 
-    void HandlePlayerMovement()
+    public void HandlePlayerMovement()
     {
-        _playerVelocity = CalculateHorizontalVelocity(MovementVector.x, MovementVector.y);
+        PlayerVelocity = CalculateHorizontalVelocity(MovementVector.x, MovementVector.y);
 
-        if (_controller.isGrounded)
+        if (Controller.isGrounded)
         {
             if (IsJumping) ResetJumpTimer();
             StopFalling();
@@ -91,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
         if (ShouldMove)
         {
             RotatePlayer();
-            _controller.Move(_playerVelocity * Time.deltaTime);
+            Controller.Move(PlayerVelocity * Time.deltaTime);
         }
         else
             RotateCamera(LookVector.x, LookVector.y);
@@ -101,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
     {
         var horizontalInput = transform.right * hInput + transform.forward * vInput;
         var horizontalVelocity = horizontalInput * MovementSpeed;
-        horizontalVelocity.y = _playerVelocity.y;
+        horizontalVelocity.y = PlayerVelocity.y;
 
         return horizontalVelocity;
     }
@@ -110,16 +110,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        _playerVelocity.y = Mathf.Log(JumpHeight * -MovementSpeed * GravityValue);
+        PlayerVelocity.y = Mathf.Log(JumpHeight * -MovementSpeed * GravityAcceleration);
         JumpTimer -= Time.deltaTime;
     }
 
     private void StopFalling()
     {
-        if (_playerVelocity.y < 0) _playerVelocity.y = 0;
+        if (PlayerVelocity.y < 0) PlayerVelocity.y = 0;
     }
 
-    private void Fall() => _playerVelocity.y += GravityValue * Time.deltaTime;
+    private void Fall() => PlayerVelocity.y += GravityAcceleration * Time.deltaTime;
 
     private void RotatePlayer()
     {
