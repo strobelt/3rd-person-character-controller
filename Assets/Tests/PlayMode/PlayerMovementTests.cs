@@ -8,20 +8,23 @@ namespace Tests
 {
     public class BasePlayerMovementTests
     {
-        protected PlayerMovement playerMovement;
+        protected Faker Faker;
+        protected PlayerMovement PlayerMovement;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            Faker = new Faker();
+
             var player = Object.Instantiate(Resources.Load<GameObject>("Prefabs/Player"));
-            playerMovement = player.GetComponent<PlayerMovement>();
+            PlayerMovement = player.GetComponent<PlayerMovement>();
         }
     }
 
     public class PlayerMovementTests : BasePlayerMovementTests
     {
         [Test]
-        public void ShouldCreate() => playerMovement.Should().NotBeNull();
+        public void ShouldCreate() => PlayerMovement.Should().NotBeNull();
     }
 
     public class HandleMovementInputTests : BasePlayerMovementTests
@@ -30,8 +33,8 @@ namespace Tests
         public void ShouldSetPlayerMovementVectorToInputVector()
         {
             var inputVector = new Vector2();
-            playerMovement.HandleMovementInput(inputVector, true);
-            playerMovement._movementVector.Should().Be(inputVector);
+            PlayerMovement.HandleMovementInput(inputVector, true);
+            PlayerMovement.MovementVector.Should().Be(inputVector);
         }
     }
 
@@ -39,50 +42,47 @@ namespace Tests
     public class WhenStartedMoving : BasePlayerMovementTests
     {
         readonly Vector2 _inputVector = new Vector2();
-        private Faker _faker;
         private float _precision = 0.0001f;
 
         [OneTimeSetUp]
         public void Configuration()
         {
-            _faker = new Faker();
-
-            playerMovement.CameraTarget = new GameObject();
-            playerMovement.CameraTarget.transform.forward = _faker.Random.Vector3(0, 10);
-            playerMovement.CameraTarget.transform.localRotation = _faker.Random.Quaternion(0, 10);
+            PlayerMovement.CameraTarget = new GameObject();
+            PlayerMovement.CameraTarget.transform.forward = Faker.Random.Vector3(0, 10);
+            PlayerMovement.CameraTarget.transform.localRotation = Faker.Random.Quaternion(0, 10);
         }
 
         [Test]
         public void ShouldSetTransformForwardToNormalizedCameraHorizontalForward()
         {
-            var normalizedCameraHorizontalForward = playerMovement.CameraTarget.transform.forward;
+            var normalizedCameraHorizontalForward = PlayerMovement.CameraTarget.transform.forward;
             normalizedCameraHorizontalForward.y = 0;
             normalizedCameraHorizontalForward.Normalize();
 
 
-            playerMovement.HandleMovementInput(_inputVector, true);
+            PlayerMovement.HandleMovementInput(_inputVector, true);
 
 
-            playerMovement.transform.forward.x.Should()
+            PlayerMovement.transform.forward.x.Should()
                 .BeApproximately(normalizedCameraHorizontalForward.x, _precision);
 
-            playerMovement.transform.forward.y.Should().Be(0);
+            PlayerMovement.transform.forward.y.Should().Be(0);
 
-            playerMovement.transform.forward.z.Should()
+            PlayerMovement.transform.forward.z.Should()
                 .BeApproximately(normalizedCameraHorizontalForward.z, _precision);
 
-            playerMovement.transform.forward.Should().BeEquivalentTo(normalizedCameraHorizontalForward);
+            PlayerMovement.transform.forward.Should().BeEquivalentTo(normalizedCameraHorizontalForward);
         }
 
         [Test]
         public void ShouldResetCameraTargetRotationButKeepHorizontalIncline()
         {
-            var targetHorizontalRotation = playerMovement.CameraTarget.transform.localRotation.eulerAngles.x;
+            var targetHorizontalRotation = PlayerMovement.CameraTarget.transform.localRotation.eulerAngles.x;
             var expectedRotation = Quaternion.Euler(targetHorizontalRotation, 0, 0);
 
-            playerMovement.HandleMovementInput(_inputVector, true);
+            PlayerMovement.HandleMovementInput(_inputVector, true);
 
-            var targetLocalRotation = playerMovement.CameraTarget.transform.localRotation;
+            var targetLocalRotation = PlayerMovement.CameraTarget.transform.localRotation;
 
             targetLocalRotation.Should().BeEquivalentTo(expectedRotation);
         }
@@ -90,11 +90,52 @@ namespace Tests
         [Test]
         public void ShouldNotHaveRotationAroundZAxis()
         {
-            playerMovement.HandleMovementInput(_inputVector, true);
+            PlayerMovement.HandleMovementInput(_inputVector, true);
 
-            var targetLocalRotation = playerMovement.CameraTarget.transform.localRotation;
+            var targetLocalRotation = PlayerMovement.CameraTarget.transform.localRotation;
 
             targetLocalRotation.eulerAngles.z.Should().Be(0);
+        }
+    }
+
+    [TestFixture]
+    public class HandleLookInputTests : BasePlayerMovementTests
+    {
+        [Test]
+        public void ShouldSetLookVectorToInputVector()
+        {
+            var inputVector = Faker.Random.Vector2(0, 10);
+            PlayerMovement.HandleLookInput(inputVector);
+            PlayerMovement.LookVector.Should().Be(inputVector);
+        }
+    }
+
+    [TestFixture]
+    public class HandleJumpInputTests : BasePlayerMovementTests
+    {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ShouldSetBaseIsJumpingToJumpInput(bool jumpInput)
+        {
+            PlayerMovement.HandleJumpInput(jumpInput);
+            PlayerMovement.IsJumping.Should().Be(jumpInput);
+        }
+
+        [Test]
+        public void ShouldZeroJumpTimerWhenJumpInputIsFalse()
+        {
+            PlayerMovement.JumpTimer = Faker.Random.Float();
+            PlayerMovement.HandleJumpInput(false);
+            PlayerMovement.JumpTimer.Should().Be(0);
+        }
+
+        [Test]
+        public void ShouldNotChangeJumpTimerWhenJumpInputIsTrue()
+        {
+            var jumpTimer = Faker.Random.Float();
+            PlayerMovement.JumpTimer = jumpTimer;
+            PlayerMovement.HandleJumpInput(true);
+            PlayerMovement.JumpTimer.Should().Be(jumpTimer);
         }
     }
 }

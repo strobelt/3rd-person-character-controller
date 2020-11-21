@@ -14,6 +14,14 @@ namespace Tests.Extensions
             );
         }
 
+        public static Vector2 Vector2(this Randomizer randomizer, float min = 0.0f, float max = 1.0f)
+        {
+            return new Vector2(
+                randomizer.Float(min, max),
+                randomizer.Float(min, max)
+            );
+        }
+
         public static Quaternion Quaternion(this Randomizer randomizer, float minEulerAngle = 0.0f,
             float maxEulerAngle = 1.0f)
         {

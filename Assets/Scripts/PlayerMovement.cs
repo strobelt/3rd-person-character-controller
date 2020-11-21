@@ -14,14 +14,15 @@ public class PlayerMovement : MonoBehaviour
     [Range(0, 360)] public float CameraMaxUpwardAngle = 65;
     [Range(0, 360)] public float CameraMaxDownwardAngle = 320;
 
+    [HideInInspector] public Vector2 MovementVector;
+    [HideInInspector] public Vector2 LookVector;
+    [HideInInspector] public bool IsJumping;
+    [HideInInspector] public float JumpTimer;
+
     private const float MovementThreshold = 1.0f;
 
     private CharacterController _controller;
     private Vector3 _playerVelocity;
-    [HideInInspector] public Vector2 _movementVector;
-    private Vector2 _lookVector;
-    private bool _isJumping;
-    private float _jumpTimer;
 
     private float RotationDelta => RotationSpeed * Time.deltaTime;
     private bool ShouldMove => _playerVelocity.magnitude > MovementThreshold;
@@ -30,13 +31,13 @@ public class PlayerMovement : MonoBehaviour
 
     void Update() => HandlePlayerMovement();
 
-    public void Move(InputAction.CallbackContext context) => HandleMovementInput(context.ReadValue<Vector2>(), context.started);
+    public void Move(InputAction.CallbackContext context) =>
+        HandleMovementInput(context.ReadValue<Vector2>(), context.started);
 
     public void HandleMovementInput(Vector2 inputVector, bool startedMoving)
     {
-        _movementVector = inputVector;
-        if (startedMoving)
-            FaceForward();
+        MovementVector = inputVector;
+        if (startedMoving) FaceForward();
     }
 
     private void FaceForward()
@@ -52,36 +53,37 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public void Look(InputAction.CallbackContext context)
-        => _lookVector = context.ReadValue<Vector2>();
+        => HandleLookInput(context.ReadValue<Vector2>());
+
+    public void HandleLookInput(Vector2 inputVector)
+        => LookVector = inputVector;
 
     public void Jump(InputAction.CallbackContext context)
-    {
-        if (context.started)
-            _isJumping = true;
+        => HandleJumpInput(!context.canceled);
 
-        if (context.canceled)
-        {
-            _jumpTimer = 0;
-            _isJumping = false;
-        }
+    public void HandleJumpInput(bool isJumping)
+    {
+        IsJumping = isJumping;
+
+        if (!isJumping) JumpTimer = 0;
     }
 
     void HandlePlayerMovement()
     {
-        _playerVelocity = CalculateHorizontalVelocity(_movementVector.x, _movementVector.y);
+        _playerVelocity = CalculateHorizontalVelocity(MovementVector.x, MovementVector.y);
 
         if (_controller.isGrounded)
         {
-            if (_isJumping) ResetJumpTimer();
+            if (IsJumping) ResetJumpTimer();
             StopFalling();
         }
 
-        if (_isJumping)
+        if (IsJumping)
         {
-            if (_jumpTimer > 0)
+            if (JumpTimer > 0)
                 Jump();
             else
-                _isJumping = false;
+                IsJumping = false;
         }
 
         Fall();
@@ -92,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
             _controller.Move(_playerVelocity * Time.deltaTime);
         }
         else
-            RotateCamera(_lookVector.x, _lookVector.y);
+            RotateCamera(LookVector.x, LookVector.y);
     }
 
     private Vector3 CalculateHorizontalVelocity(float hInput, float vInput)
@@ -104,12 +106,12 @@ public class PlayerMovement : MonoBehaviour
         return horizontalVelocity;
     }
 
-    private void ResetJumpTimer() => _jumpTimer = MaxJumpTime;
+    private void ResetJumpTimer() => JumpTimer = MaxJumpTime;
 
     private void Jump()
     {
         _playerVelocity.y = Mathf.Log(JumpHeight * -MovementSpeed * GravityValue);
-        _jumpTimer -= Time.deltaTime;
+        JumpTimer -= Time.deltaTime;
     }
 
     private void StopFalling()
@@ -122,10 +124,10 @@ public class PlayerMovement : MonoBehaviour
     private void RotatePlayer()
     {
         var playerRotation = transform.rotation.eulerAngles;
-        playerRotation += Vector3.up * _lookVector.x * RotationDelta;
+        playerRotation += Vector3.up * LookVector.x * RotationDelta;
         transform.rotation = Quaternion.Euler(playerRotation);
 
-        RotateCamera(0, _lookVector.y);
+        RotateCamera(0, LookVector.y);
     }
 
     private void RotateCamera(float hInput, float vInput)
