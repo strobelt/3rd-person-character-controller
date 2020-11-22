@@ -18,7 +18,6 @@ namespace Tests
 
             var player = Object.Instantiate(Resources.Load<GameObject>("Prefabs/Player"));
             PlayerMovement = player.GetComponent<PlayerMovement>();
-            PlayerMovement.Controller = player.GetComponent<CharacterController>();
         }
     }
 
