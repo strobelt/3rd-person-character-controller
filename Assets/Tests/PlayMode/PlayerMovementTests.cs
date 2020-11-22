@@ -1,5 +1,7 @@
-﻿using Bogus;
+﻿using Assets.Scripts;
+using Bogus;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using Tests.Extensions;
 using UnityEngine;
@@ -18,7 +20,7 @@ namespace Tests
 
             var player = Object.Instantiate(Resources.Load<GameObject>("Prefabs/Player"));
             PlayerMovement = player.GetComponent<PlayerMovement>();
-            PlayerMovement.Controller = player.GetComponent<CharacterController>();
+            PlayerMovement.CharacterControllerWrapper = Substitute.For<ICharacterControllerWrapper>();
         }
     }
 

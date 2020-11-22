@@ -201,11 +201,16 @@ MonoBehaviour:
   MovementSpeed: 5
   RotationSpeed: 100
   JumpHeight: 5
-  GravityValue: -40
+  GravityAcceleration: -9.81
   MaxJumpTime: 0.35
   CameraTarget: {fileID: 8089015674268700727}
   CameraMaxUpwardAngle: 65
   CameraMaxDownwardAngle: 320
+  MovementVector: {x: 0, y: 0}
+  LookVector: {x: 0, y: 0}
+  IsJumping: 0
+  JumpTimer: 0
+  PlayerVelocity: {x: 0, y: 0, z: 0}
 --- !u!114 &8089015674233877026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,7 +218,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8089015674233877034}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 51a7759f027a2264ba38ed95874fe3a1, type: 3}
   m_Name: 

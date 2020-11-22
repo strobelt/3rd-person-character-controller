@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
@@ -17,8 +18,11 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector] public Vector2 MovementVector;
     [HideInInspector] public Vector2 LookVector;
     [HideInInspector] public bool IsJumping;
+
     [HideInInspector] public float JumpTimer;
-    [HideInInspector] public CharacterController Controller;
+
+    //[HideInInspector] public CharacterController Controller;
+    [HideInInspector] public ICharacterControllerWrapper CharacterControllerWrapper;
     [HideInInspector] public Vector3 PlayerVelocity;
 
     private const float MovementThreshold = 1.0f;
@@ -27,7 +31,13 @@ public class PlayerMovement : MonoBehaviour
     public float RotationDelta => RotationSpeed * Time.deltaTime;
     public bool ShouldMove => PlayerVelocity.magnitude > MovementThreshold;
 
-    private void Start() => Controller = GetComponent<CharacterController>();
+    private void Start()
+    {
+        CharacterControllerWrapper = new CharacterControllerWrapper
+        {
+            CharacterController = GetComponent<CharacterController>()
+        };
+    }
 
     void Update() => HandlePlayerMovement();
 
@@ -72,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerVelocity = CalculateHorizontalVelocity(MovementVector.x, MovementVector.y);
 
-        if (Controller.isGrounded)
+        if (CharacterControllerWrapper.IsGrounded())
         {
             if (IsJumping) ResetJumpTimer();
             StopFalling();
@@ -91,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
         if (ShouldMove)
         {
             RotatePlayer();
-            Controller.Move(PlayerVelocity * Time.deltaTime);
+            CharacterControllerWrapper.Move(PlayerVelocity * Time.deltaTime);
         }
         else
             RotateCamera(LookVector.x, LookVector.y);
