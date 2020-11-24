@@ -1,5 +1,7 @@
-﻿using Bogus;
+﻿using Assets.Scripts;
+using Bogus;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using Tests.Extensions;
 using UnityEngine;
@@ -18,15 +20,18 @@ namespace Tests
 
             var player = Object.Instantiate(Resources.Load<GameObject>("Prefabs/Player"));
             PlayerMovement = player.GetComponent<PlayerMovement>();
+            PlayerMovement.CharacterControllerWrapper = Substitute.For<ICharacterControllerWrapper>();
         }
     }
 
+    [TestFixture]
     public class PlayerMovementTests : BasePlayerMovementTests
     {
         [Test]
         public void ShouldCreate() => PlayerMovement.Should().NotBeNull();
     }
 
+    [TestFixture]
     public class HandleMovementInputTests : BasePlayerMovementTests
     {
         [Test]
@@ -143,6 +148,43 @@ namespace Tests
     public class HandlePlayerMovementTests : BasePlayerMovementTests
     {
         [Test]
+        public void ShouldSetVerticalVelocityToZeroIfGroundedAndVerticalVelocityIsNegative()
+        {
+            PlayerMovement.GravityAcceleration = 0;
+            PlayerMovement.IsJumping = false;
+            PlayerMovement.CharacterControllerWrapper.IsGrounded().Returns(true);
+            PlayerMovement.PlayerVelocity.y = Faker.Random.Float(-10, -1);
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.PlayerVelocity.y.Should().BeApproximately(0, 0.0001f);
+        }
+
+        [Test]
+        public void ShouldResetJumpTimerIfGroundedAndJumping()
+        {
+            PlayerMovement.JumpTimer = 0;
+            PlayerMovement.IsJumping = true;
+            PlayerMovement.CharacterControllerWrapper.IsGrounded().Returns(true);
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.JumpTimer.Should().BeApproximately(PlayerMovement.MaxJumpTime - Time.deltaTime, 0.0001f);
+        }
+
+        [Test]
+        public void ShouldNotResetJumpTimerIfGroundedButNotJumping()
+        {
+            PlayerMovement.JumpTimer = PlayerMovement.MaxJumpTime + Faker.Random.Float(1, 10);
+            PlayerMovement.IsJumping = false;
+            PlayerMovement.CharacterControllerWrapper.IsGrounded().Returns(true);
+
+            PlayerMovement.HandlePlayerMovement();
+
+            PlayerMovement.JumpTimer.Should().NotBeApproximately(PlayerMovement.MaxJumpTime - Time.deltaTime, 0.0001f);
+        }
+
+        [Test]
         public void ShouldCalculateHorizontalVelocity()
         {
             PlayerMovement.PlayerVelocity = Vector3.zero;
@@ -163,8 +205,10 @@ namespace Tests
         [Test]
         public void ShouldSetIsJumpingToFalseWhenIsJumpingAndJumpTimerIsLessThanOrEqualTo0()
         {
+            PlayerMovement.CharacterControllerWrapper.IsGrounded().Returns(false);
             PlayerMovement.IsJumping = true;
             PlayerMovement.JumpTimer = Faker.Random.Float(-10, 0);
+
             PlayerMovement.HandlePlayerMovement();
 
             PlayerMovement.IsJumping.Should().BeFalse();
