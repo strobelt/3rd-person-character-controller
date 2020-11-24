@@ -201,7 +201,7 @@ MonoBehaviour:
   MovementSpeed: 5
   RotationSpeed: 100
   JumpHeight: 5
-  GravityAcceleration: -9.81
+  GravityAcceleration: -40
   MaxJumpTime: 0.35
   CameraTarget: {fileID: 8089015674268700727}
   CameraMaxUpwardAngle: 65
