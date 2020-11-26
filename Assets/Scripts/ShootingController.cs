@@ -1,14 +1,15 @@
-﻿using UnityEngine;
+﻿using Cinemachine;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ShootingController : MonoBehaviour
 {
     public GameObject Bullet;
-    public RectTransform TargetingReticle;
+    public Cinemachine3rdPersonAim Aim;
+    public Canvas Canvas;
 
     private bool _isShooting;
     private int _hittableLayerMask;
-    private int _displayWidth, _displayHeight;
 
     private readonly Color[] _colors =
     {
@@ -21,10 +22,6 @@ public class ShootingController : MonoBehaviour
     {
         _hittableLayerMask = 1 << LayerMask.NameToLayer("Player");
         _hittableLayerMask = ~_hittableLayerMask;
-
-        var canvas = TargetingReticle.GetComponentInParent<Canvas>();
-        _displayWidth = canvas.worldCamera.pixelWidth;
-        _displayHeight = canvas.worldCamera.pixelHeight;
     }
 
     void FixedUpdate()
@@ -49,9 +46,9 @@ public class ShootingController : MonoBehaviour
 
     Ray GetRayFromTargetingReticle()
     {
-        var posX = TargetingReticle.transform.position.x + _displayWidth / 2f;
-        var posY = TargetingReticle.transform.position.y + _displayHeight / 2f;
-        return Camera.main.ScreenPointToRay(new Vector3(posX, posY, 0));
+        var canvasCenter = Canvas.pixelRect.center;
+        var aimCenter = Aim.AimTargetReticle.rect.center;
+        return Camera.main.ScreenPointToRay(canvasCenter - aimCenter);
     }
 
     void HandleHit(RaycastHit hit)

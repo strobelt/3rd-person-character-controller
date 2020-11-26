@@ -610,6 +610,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8089015674233877026, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089015674233877026, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
+      propertyPath: TargetingReticle
+      value: 
+      objectReference: {fileID: 1406364081}
+    - target: {fileID: 8089015674233877026, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
+      propertyPath: Aim
+      value: 
+      objectReference: {fileID: 1134293468}
+    - target: {fileID: 8089015674233877026, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
+      propertyPath: Canvas
+      value: 
+      objectReference: {fileID: 1484590258}
     - target: {fileID: 8089015674233877034, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
       propertyPath: m_Name
       value: Player
