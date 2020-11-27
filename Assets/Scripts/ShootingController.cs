@@ -4,17 +4,11 @@ using UnityEngine.InputSystem;
 
 public class ShootingController : MonoBehaviour
 {
-    public GameObject Bullet;
     public Cinemachine3rdPersonAim Aim;
     public Canvas Canvas;
 
     private bool _isShooting;
     private int _hittableLayerMask;
-
-    private readonly Color[] _colors =
-    {
-        Color.red, Color.blue, Color.yellow, Color.black, Color.green
-    };
 
     public void Shoot(InputAction.CallbackContext context) => _isShooting = !context.canceled;
 
@@ -32,14 +26,7 @@ public class ShootingController : MonoBehaviour
 
             if (Physics.Raycast(ray, out var hit, Mathf.Infinity, _hittableLayerMask))
             {
-                Debug.DrawRay(ray.origin, ray.direction, Color.yellow);
-                Debug.Log("Did Hit");
                 HandleHit(hit);
-            }
-            else
-            {
-                Debug.DrawRay(ray.origin, ray.direction, Color.white);
-                Debug.Log("Did not Hit");
             }
         }
     }
@@ -53,8 +40,7 @@ public class ShootingController : MonoBehaviour
 
     void HandleHit(RaycastHit hit)
     {
-        var random = new System.Random();
-        var randomColor = _colors[random.Next(0, _colors.Length - 1)];
-        hit.transform.gameObject.GetComponent<Renderer>().material.color = randomColor;
+        var hittable = hit.collider.gameObject.GetComponent<IHittable>();
+        hittable?.OnHit();
     }
 }
