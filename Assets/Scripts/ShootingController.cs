@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,7 +41,7 @@ public class ShootingController : MonoBehaviour
 
     void HandleHit(RaycastHit hit)
     {
-        var hittable = hit.collider.gameObject.GetComponent<IHittable>();
-        hittable?.OnHit();
+        var hittables = hit.collider.gameObject.GetComponents<IHittable>().ToList();
+        hittables.ForEach(hittable => hittable.Hit(gameObject));
     }
 }
