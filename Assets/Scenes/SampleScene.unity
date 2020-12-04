@@ -232,6 +232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c405f5fe9917b14681c24291c62d5ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Health: 100
 --- !u!4 &234970745 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8089015674268700726, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
@@ -640,6 +641,14 @@ PrefabInstance:
       propertyPath: Canvas
       value: 
       objectReference: {fileID: 1484590258}
+    - target: {fileID: 8089015674233877026, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
+      propertyPath: TimeBetweenShots
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089015674233877026, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
+      propertyPath: CanShoot
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8089015674233877034, guid: c69279fd2cbe2ef40ab877b1630c60fd, type: 3}
       propertyPath: m_Name
       value: Player
@@ -822,7 +831,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a1355651564ce34ea0f021ba82c96c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Toughness: 10
+  Toughness: 100
+  DamageResistance: 3
   DecreaseOnHit: 1
   OnHit:
     m_PersistentCalls:

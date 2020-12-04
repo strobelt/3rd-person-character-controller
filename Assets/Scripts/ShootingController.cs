@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,6 +8,9 @@ public class ShootingController : MonoBehaviour
 {
     public Cinemachine3rdPersonAim Aim;
     public Canvas Canvas;
+    public int ShootingDamage = 10;
+    public float TimeBetweenShots = .15f;
+    public bool CanShoot = true;
 
     private bool _isShooting;
     private int _hittableLayerMask;
@@ -21,14 +25,15 @@ public class ShootingController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (_isShooting)
-        {
-            var ray = GetRayFromTargetingReticle();
+        if (!_isShooting || !CanShoot) return;
 
-            if (Physics.Raycast(ray, out var hit, Mathf.Infinity, _hittableLayerMask))
-            {
-                HandleHit(hit);
-            }
+        CanShoot = false;
+        StartCoroutine(DelayNextShot());
+        var ray = GetRayFromTargetingReticle();
+
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, _hittableLayerMask))
+        {
+            HandleHit(hit);
         }
     }
 
@@ -42,6 +47,12 @@ public class ShootingController : MonoBehaviour
     void HandleHit(RaycastHit hit)
     {
         var hittables = hit.collider.gameObject.GetComponents<IHittable>().ToList();
-        hittables.ForEach(hittable => hittable.Hit(gameObject));
+        hittables.ForEach(hittable => hittable.Hit(gameObject, ShootingDamage));
+    }
+
+    private IEnumerator DelayNextShot()
+    {
+        yield return new WaitForSeconds(TimeBetweenShots);
+        CanShoot = true;
     }
 }

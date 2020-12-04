@@ -1,19 +1,25 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class DestructibleModifier : MonoBehaviour, IHittable
 {
-    public int Toughness = 10;
+    public int Toughness = 100;
+    public int DamageResistance = 3;
     public bool DecreaseOnHit = true;
-    public UnityEvent<GameObject> OnHit;
+    public UnityEvent<GameObject, int> OnHit;
     public UnityEvent<GameObject> OnToughnessZero;
 
-    public void Hit(GameObject hitter)
+    private const int NoDamage = 0;
+
+    public void Hit(GameObject hitter, int shootingDamage)
     {
-        OnHit?.Invoke(gameObject);
+        var partDamage = CalculateDamage(shootingDamage);
+
+        OnHit?.Invoke(gameObject, partDamage);
 
         if (DecreaseOnHit)
-            Toughness--;
+            Toughness -= partDamage;
 
         if (Toughness == 0)
         {
@@ -21,4 +27,7 @@ public class DestructibleModifier : MonoBehaviour, IHittable
             Destroy(gameObject);
         }
     }
+
+    private int CalculateDamage(int shootingDamage)
+        => Math.Max(shootingDamage - DamageResistance, NoDamage);
 }
