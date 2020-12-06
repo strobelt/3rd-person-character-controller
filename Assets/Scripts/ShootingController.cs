@@ -1,19 +1,19 @@
-﻿using UnityEngine;
+﻿using Cinemachine;
+using System.Collections;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ShootingController : MonoBehaviour
 {
-    public GameObject Bullet;
-    public RectTransform TargetingReticle;
+    public Cinemachine3rdPersonAim Aim;
+    public Canvas Canvas;
+    public int ShootingDamage = 10;
+    public float TimeBetweenShots = .15f;
+    public bool CanShoot = true;
 
     private bool _isShooting;
     private int _hittableLayerMask;
-    private int _displayWidth, _displayHeight;
-
-    private readonly Color[] _colors =
-    {
-        Color.red, Color.blue, Color.yellow, Color.black, Color.green
-    };
 
     public void Shoot(InputAction.CallbackContext context) => _isShooting = !context.canceled;
 
@@ -21,43 +21,38 @@ public class ShootingController : MonoBehaviour
     {
         _hittableLayerMask = 1 << LayerMask.NameToLayer("Player");
         _hittableLayerMask = ~_hittableLayerMask;
-
-        var canvas = TargetingReticle.GetComponentInParent<Canvas>();
-        _displayWidth = canvas.worldCamera.pixelWidth;
-        _displayHeight = canvas.worldCamera.pixelHeight;
     }
 
     void FixedUpdate()
     {
-        if (_isShooting)
-        {
-            var ray = GetRayFromTargetingReticle();
+        if (!_isShooting || !CanShoot) return;
 
-            if (Physics.Raycast(ray, out var hit, Mathf.Infinity, _hittableLayerMask))
-            {
-                Debug.DrawRay(ray.origin, ray.direction, Color.yellow);
-                Debug.Log("Did Hit");
-                HandleHit(hit);
-            }
-            else
-            {
-                Debug.DrawRay(ray.origin, ray.direction, Color.white);
-                Debug.Log("Did not Hit");
-            }
+        CanShoot = false;
+        StartCoroutine(DelayNextShot());
+        var ray = GetRayFromTargetingReticle();
+
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, _hittableLayerMask))
+        {
+            HandleHit(hit);
         }
     }
 
     Ray GetRayFromTargetingReticle()
     {
-        var posX = TargetingReticle.transform.position.x + _displayWidth / 2f;
-        var posY = TargetingReticle.transform.position.y + _displayHeight / 2f;
-        return Camera.main.ScreenPointToRay(new Vector3(posX, posY, 0));
+        var canvasCenter = Canvas.pixelRect.center;
+        var aimCenter = Aim.AimTargetReticle.rect.center;
+        return Camera.main.ScreenPointToRay(canvasCenter - aimCenter);
     }
 
     void HandleHit(RaycastHit hit)
     {
-        var random = new System.Random();
-        var randomColor = _colors[random.Next(0, _colors.Length - 1)];
-        hit.transform.gameObject.GetComponent<Renderer>().material.color = randomColor;
+        var hittables = hit.collider.gameObject.GetComponents<IHittable>().ToList();
+        hittables.ForEach(hittable => hittable.Hit(gameObject, ShootingDamage));
+    }
+
+    private IEnumerator DelayNextShot()
+    {
+        yield return new WaitForSeconds(TimeBetweenShots);
+        CanShoot = true;
     }
 }
