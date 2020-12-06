@@ -2,11 +2,12 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class DestructibleModifier : MonoBehaviour, IHittable
+public class DamageableModifier : MonoBehaviour, IHittable
 {
     public int Toughness = 100;
     public int DamageResistance = 3;
     public bool DecreaseOnHit = true;
+    public bool Destroyable = true;
     public UnityEvent<GameObject, int> OnHit;
     public UnityEvent<GameObject> OnToughnessZero;
 
@@ -21,10 +22,10 @@ public class DestructibleModifier : MonoBehaviour, IHittable
         if (DecreaseOnHit)
             Toughness -= partDamage;
 
-        if (Toughness == 0)
+        if (Toughness <= 0)
         {
             OnToughnessZero?.Invoke(gameObject);
-            Destroy(gameObject);
+            if (Destroyable) Destroy(gameObject);
         }
     }
 

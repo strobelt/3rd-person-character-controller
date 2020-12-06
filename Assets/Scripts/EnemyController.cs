@@ -2,11 +2,12 @@
 
 public class EnemyController : MonoBehaviour
 {
-    public int Health = 100;
+    public int Toughness = 1000;
 
     public void OnPartHit(GameObject part, int shootingDamage)
     {
-        Debug.Log($"{part.name} was hit!");
+        Debug.Log($"{part.name} was hit for {shootingDamage} points of damage!");
+        Toughness -= shootingDamage;
     }
 
     public void OnPartDestroyed(GameObject part)
