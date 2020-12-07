@@ -1,6 +1,4 @@
-﻿using Assets.Scripts.Constants;
-using System.Collections;
-using System.Linq;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -36,9 +34,7 @@ public class DamageableModifier : MonoBehaviour, IHittable
 
     void Start()
     {
-        _healthCanvas = transform
-            .GetComponentsInChildren<Canvas>()
-            .FirstOrDefault(x => x.CompareTag(Tags.HealthCanvas));
+        CreateHealthBar();
         if (_healthCanvas)
         {
             _healthCanvas.GetComponent<CanvasGroup>().alpha = 0;
@@ -48,6 +44,13 @@ public class DamageableModifier : MonoBehaviour, IHittable
         }
 
         CurrentToughness = Toughness;
+    }
+
+    private void CreateHealthBar()
+    {
+        var healthCanvasPrefab = Instantiate(Resources.Load<GameObject>("Prefabs/HealthCanvas"), transform.position, transform.rotation, transform);
+
+        _healthCanvas = healthCanvasPrefab.GetComponent<Canvas>();
     }
 
     public void Hit(GameObject hitter, int shootingDamage)
