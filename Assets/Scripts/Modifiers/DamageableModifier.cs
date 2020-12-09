@@ -48,7 +48,10 @@ public class DamageableModifier : MonoBehaviour, IHittable
 
     private void CreateHealthBar()
     {
-        var healthCanvasPrefab = Instantiate(Resources.Load<GameObject>("Prefabs/HealthCanvas"), transform);
+        var healthCanvasPrefab = Instantiate(Resources.Load<GameObject>("Prefabs/HealthCanvas"));
+        healthCanvasPrefab.transform.SetParent(transform, true);
+        var offset = new Vector3(0, .7f, 0);
+        healthCanvasPrefab.transform.SetPositionAndRotation(transform.position + offset, Quaternion.identity);
 
         _healthCanvas = healthCanvasPrefab.GetComponent<Canvas>();
     }
